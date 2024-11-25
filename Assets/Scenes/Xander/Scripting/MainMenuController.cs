@@ -4,8 +4,10 @@ using System.Collections;
 public class MainMenuController : MonoBehaviour
 {
     public GameObject mainMenuCanvas;
-    public GameObject wheelchair;
-    public Transform[] waypoints; // Array of waypoints for wheelchair movement
+    public GameObject playerWheelchair;
+    public GameObject opponentWheelchair;
+    public Transform[] playerWaypoints; // Array of waypoints for player movement
+    public Transform[] opponentWaypoints; // Array of waypoints for opponent movement
 
     public AudioClip transitionSound;
     private AudioSource audioSource;
@@ -13,7 +15,7 @@ public class MainMenuController : MonoBehaviour
     // Booleans to trigger actions for testing
     public bool startGameTrigger = false;
     public bool startGamePhaseTrigger = false;
-    public bool moveWheelchairTrigger = false;
+    public bool moveWheelchairsTrigger = false;
 
     void Start()
     {
@@ -42,10 +44,10 @@ public class MainMenuController : MonoBehaviour
             StartGamePhase();
         }
 
-        if (moveWheelchairTrigger)
+        if (moveWheelchairsTrigger)
         {
-            moveWheelchairTrigger = false;
-            StartCoroutine(MoveWheelchair());
+            moveWheelchairsTrigger = false;
+            StartCoroutine(MoveWheelchairs());
         }
     }
 
@@ -53,21 +55,25 @@ public class MainMenuController : MonoBehaviour
     {
         mainMenuCanvas.SetActive(false);
         audioSource.PlayOneShot(transitionSound);
-        StartCoroutine(MoveWheelchair());
+        StartCoroutine(MoveWheelchairs());
     }
 
-    private IEnumerator MoveWheelchair()
+    private IEnumerator MoveWheelchairs()
     {
-        foreach (Transform waypoint in waypoints)
+        // Move player and opponent simultaneously
+        for (int i = 0; i < playerWaypoints.Length; i++)
         {
             float duration = 5f; // Adjust for how long the movement should take between waypoints
-            Vector3 start = wheelchair.transform.position;
-            Vector3 end = waypoint.position;
+            Vector3 playerStart = playerWheelchair.transform.position;
+            Vector3 playerEnd = playerWaypoints[i].position;
+            Vector3 opponentStart = opponentWheelchair.transform.position;
+            Vector3 opponentEnd = opponentWaypoints[i].position;
 
             float elapsed = 0f;
             while (elapsed < duration)
             {
-                wheelchair.transform.position = Vector3.Lerp(start, end, elapsed / duration);
+                playerWheelchair.transform.position = Vector3.Lerp(playerStart, playerEnd, elapsed / duration);
+                opponentWheelchair.transform.position = Vector3.Lerp(opponentStart, opponentEnd, elapsed / duration);
                 elapsed += Time.deltaTime;
                 yield return null;
             }
@@ -79,11 +85,11 @@ public class MainMenuController : MonoBehaviour
     public void StartGamePhase()
     {
         Debug.Log("Arrived at morgue, game starts now!");
-        // Initialize TurnManager to start the Russian roulette gameplay
-        TurnManager turnManager = FindObjectOfType<TurnManager>();
-        if (turnManager != null)
+        // Initialize GameManager to start managing the gameplay
+        GameManager gameManager = FindObjectOfType<GameManager>();
+        if (gameManager != null)
         {
-            turnManager.StartPlayerTurn();
+            gameManager.StartGame();
         }
     }
 }
