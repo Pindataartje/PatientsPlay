@@ -39,7 +39,9 @@ public class HeartbeatMonitor : MonoBehaviour
         UpdateHeartbeatDisplay();
         UpdateBeatInterval();
 
-        if (heartbeat < 40)
+        Debug.Log($"Heartbeat modified: {heartbeat} BPM");
+
+        if (heartbeat <= 0)
         {
             LoseGame();
         }
@@ -96,7 +98,7 @@ public class HeartbeatMonitor : MonoBehaviour
 
     void LoseGame()
     {
-        Debug.Log("You lost!");
+        Debug.Log("Heartbeat reached 0. Game over.");
         // Trigger end-game sequence here
     }
 }

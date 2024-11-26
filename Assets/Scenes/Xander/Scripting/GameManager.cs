@@ -1,22 +1,17 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq; // Added to use OrderBy
 
 public class GameManager : MonoBehaviour
 {
     public Revolver revolver;
     public Transform revolverSpawnPoint; // Spawn location for the revolver
-    public Transform[] playerItemSpawnPoints; // Spawn locations for player's items
-    public Transform[] opponentItemSpawnPoints; // Spawn locations for opponent's items
-    public GameObject[] itemPrefabs; // Array of item prefabs to spawn
+    public Transform aiHandTarget; // Where the revolver should be placed when AI holds it
+    public Transform aiHeadTarget; // Where the revolver should be aimed if AI shoots itself
 
-    public int maxItemsPerRound = 3;
-    public int maxTotalItems = 8;
+    public HeartbeatMonitor playerMonitor;
+    public HeartbeatMonitor aiMonitor;
 
     private bool isPlayerTurn = true;
-    private int currentRound = 1;
-    private List<GameObject> spawnedItems = new List<GameObject>(); // Keep track of spawned items
 
     void Start()
     {
@@ -26,17 +21,13 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         Debug.Log("Game started, player's turn!");
-        SpawnRevolver();
         StartNewRound();
     }
 
     public void StartNewRound()
     {
-        Debug.Log("Starting new round: " + currentRound);
+        Debug.Log("Starting new round.");
         revolver.SetupChambers();
-        ClearOldItems();
-        SpawnItemsForPlayer();
-        SpawnItemsForOpponent();
         StartTurn();
     }
 
@@ -49,7 +40,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("Opponent's turn!");
+            Debug.Log("AI's turn!");
             revolver.EnablePickup(false); // Prevent player from picking up the revolver
             StartCoroutine(AIUseRevolver());
         }
@@ -61,84 +52,77 @@ public class GameManager : MonoBehaviour
         StartTurn();
     }
 
-    private void SpawnItemsForPlayer()
-    {
-        int itemsToSpawn = Mathf.Min(maxItemsPerRound, maxTotalItems - GetPlayerCurrentItems());
-        for (int i = 0; i < itemsToSpawn; i++)
-        {
-            if (playerItemSpawnPoints[i].childCount == 0) // Check if spawn point is empty
-            {
-                int randomIndex = Random.Range(0, itemPrefabs.Length);
-                GameObject spawnedItem = Instantiate(itemPrefabs[randomIndex], playerItemSpawnPoints[i].position, Quaternion.identity);
-                spawnedItem.transform.parent = playerItemSpawnPoints[i]; // Set parent to keep track
-                spawnedItems.Add(spawnedItem);
-            }
-        }
-    }
-
-    private void SpawnItemsForOpponent()
-    {
-        int itemsToSpawn = Mathf.Min(maxItemsPerRound, maxTotalItems - GetOpponentCurrentItems());
-        for (int i = 0; i < itemsToSpawn; i++)
-        {
-            if (opponentItemSpawnPoints[i].childCount == 0) // Check if spawn point is empty
-            {
-                int randomIndex = Random.Range(0, itemPrefabs.Length);
-                GameObject spawnedItem = Instantiate(itemPrefabs[randomIndex], opponentItemSpawnPoints[i].position, Quaternion.identity);
-                spawnedItem.transform.parent = opponentItemSpawnPoints[i]; // Set parent to keep track
-                spawnedItems.Add(spawnedItem);
-            }
-        }
-    }
-
-    private void ClearOldItems()
-    {
-        foreach (GameObject item in spawnedItems)
-        {
-            if (item != null)
-            {
-                Destroy(item);
-            }
-        }
-        spawnedItems.Clear();
-    }
-
-    private int GetPlayerCurrentItems()
-    {
-        // Placeholder for logic to count player items, assuming items are tagged or tracked
-        return playerItemSpawnPoints.Count(t => t.childCount > 0);
-    }
-
-    private int GetOpponentCurrentItems()
-    {
-        // Placeholder for logic to count opponent items, assuming items are tagged or tracked
-        return opponentItemSpawnPoints.Count(t => t.childCount > 0);
-    }
-
-    private void SpawnRevolver()
-    {
-        if (revolverSpawnPoint != null && revolver != null)
-        {
-            revolver.transform.position = revolverSpawnPoint.position;
-            revolver.transform.rotation = revolverSpawnPoint.rotation;
-        }
-    }
-
     private IEnumerator AIUseRevolver()
     {
-        yield return new WaitForSeconds(2); // Delay before AI uses the revolver
-        bool shotLands = revolver.Fire();
-        if (shotLands)
+        Debug.Log("AI is starting its turn...");
+
+        // Wait for AI to "decide" what to do
+        yield return new WaitForSeconds(1f);
+
+        // Move revolver to AI's hand position
+        if (aiHandTarget != null)
         {
-            Debug.Log("AI fired a live bullet!");
-            // Handle AI live shot logic
+            Debug.Log("AI picks up the revolver.");
+            revolver.transform.position = aiHandTarget.position;
+            revolver.transform.rotation = aiHandTarget.rotation;
         }
         else
         {
-            Debug.Log("AI fired a blank!");
-            // Handle AI blank shot logic
+            Debug.LogError("AI hand target not set!");
+            yield break; // Exit if no target for AI hand
         }
+
+        // Wait before deciding who to shoot
+        yield return new WaitForSeconds(2f);
+
+        bool aiShootSelf = Random.value > 0.5f;
+
+        if (aiShootSelf)
+        {
+            Debug.Log("AI decided to shoot itself.");
+            if (aiHeadTarget != null)
+            {
+                revolver.transform.rotation = Quaternion.LookRotation(aiHeadTarget.position - revolver.transform.position);
+            }
+        }
+        else
+        {
+            Debug.Log("AI decided to shoot the player.");
+            revolver.transform.rotation = Quaternion.LookRotation(playerMonitor.transform.position - revolver.transform.position);
+        }
+
+        // Wait before firing
+        yield return new WaitForSeconds(1f);
+
+        revolver.canShoot = true; // Allow AI to shoot
+        Debug.Log("AI fires the revolver...");
+        revolver.FireAction(aiShootSelf); // AI fires
+
+        // Disable shooting after firing
+        revolver.canShoot = false;
+
+        // Wait before placing revolver back
+        yield return new WaitForSeconds(1f);
+
+        // Place revolver back on the table
+        PlaceRevolverBackOnTable();
+
+        // End AI turn
         EndTurn();
     }
-}
 
+    private void PlaceRevolverBackOnTable()
+    {
+        if (revolverSpawnPoint != null)
+        {
+            revolver.transform.position = revolverSpawnPoint.position;
+            revolver.transform.rotation = revolverSpawnPoint.rotation;
+            Debug.Log("Revolver placed back on the table.");
+            revolver.EnablePickup(false); // Prevent picking up until next round
+        }
+        else
+        {
+            Debug.LogError("Revolver spawn point not set!");
+        }
+    }
+}
