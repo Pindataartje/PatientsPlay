@@ -86,7 +86,7 @@ public class MainMenuController : MonoBehaviour
     {
         Debug.Log("Arrived at morgue, game starts now!");
         // Initialize GameManager to start managing the gameplay
-        GameManager gameManager = FindObjectOfType<GameManager>();
+        GameManager gameManager = FindAnyObjectByType<GameManager>();
         if (gameManager != null)
         {
             gameManager.StartGame();

@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.InputSystem;
 using System.Linq;
 
 public class Revolver : MonoBehaviour
@@ -20,10 +19,7 @@ public class Revolver : MonoBehaviour
     private XRGrabInteractable grabInteractable;
     private GameManager gameManager;
 
-    public Transform barrelEnd; // Reference to the end of the barrel where the ray should be fired from
-
-    // Layer mask for Player and Enemy layers
-    private int layerMask;
+    public Animator animator; // Reference to the Animator component
 
     private int bulletsFired = 0;
 
@@ -31,12 +27,10 @@ public class Revolver : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         grabInteractable = GetComponent<XRGrabInteractable>();
-        gameManager = FindObjectOfType<GameManager>(); // Find the GameManager in the scene
+        gameManager = FindAnyObjectByType<GameManager>(); // Updated for deprecated method
 
-        // Setup layer mask to include only Player and Enemy layers
-        layerMask = LayerMask.GetMask("Player", "Enemy");
+        animator = GetComponent<Animator>(); // Get the Animator component
 
-        UpdatePickupState();
         SetupChambers();
         grabInteractable.selectEntered.AddListener(OnPickup);
     }
@@ -57,73 +51,20 @@ public class Revolver : MonoBehaviour
 
         if (canShoot)
         {
+            // Trigger the shoot animation
+            if (animator != null)
+            {
+                animator.SetTrigger("Shoot");
+            }
+
             bool isLive = chambers[currentChamber];
             audioSource.PlayOneShot(isLive ? liveShotSound : blankShotSound);
             Debug.Log(isLive ? "Shot was LIVE." : "Shot was BLANK.");
             currentChamber = (currentChamber + 1) % totalBullets;
             bulletsFired++;
 
-            // Perform raycast to determine hit
-            Vector3 rayOrigin = barrelEnd != null ? barrelEnd.position : transform.position;
-            Ray ray = new Ray(rayOrigin, transform.forward);
-            RaycastHit hit;
-
-            // Draw the ray for visualization purposes
-            Debug.DrawRay(ray.origin, ray.direction * 50f, Color.red, 5.0f); // Draw the ray in red for 5 seconds
-
-            // Use layer mask to only hit Player, Enemy, or Nothing layers
-            if (Physics.Raycast(ray, out hit, 50f, layerMask, QueryTriggerInteraction.Ignore))
-            {
-                Debug.Log($"Shot hit: {hit.collider.name}");
-
-                if (isLive)
-                {
-                    if (hit.collider.CompareTag("Enemy"))
-                    {
-                        Debug.Log("Live shot hit the Enemy (AI).");
-                        HeartbeatMonitor enemyMonitor = hit.collider.GetComponent<HeartbeatMonitor>();
-                        if (enemyMonitor != null)
-                        {
-                            enemyMonitor.ModifyHeartbeat(-60);
-                        }
-                    }
-                    else if (hit.collider.CompareTag("Player"))
-                    {
-                        Debug.Log("Live shot hit the Player.");
-                        HeartbeatMonitor playerMonitor = hit.collider.GetComponent<HeartbeatMonitor>();
-                        if (playerMonitor != null)
-                        {
-                            playerMonitor.ModifyHeartbeat(-60);
-                        }
-                    }
-                    else if (hit.collider.CompareTag("Nothing"))
-                    {
-                        Debug.Log("Live shot hit an object with 'Nothing' tag, ending turn.");
-                    }
-                    else
-                    {
-                        Debug.Log("Live shot hit something else, ending turn.");
-                    }
-                }
-                else
-                {
-                    Debug.Log("Blank shot was fired.");
-                    if (hit.collider.CompareTag("Enemy") || hit.collider.CompareTag("Player"))
-                    {
-                        Debug.Log("Blank shot landed, player keeps their turn.");
-                    }
-                    else
-                    {
-                        Debug.Log("Blank shot missed, ending player's turn.");
-                    }
-                }
-            }
-            else
-            {
-                Debug.Log("Shot missed, ending player's turn.");
-            }
-
-            PlaceBackOnTable();
+            // Delay placing the revolver back on the table to allow animation to play
+            Invoke(nameof(PlaceBackOnTable), 1.0f);
         }
     }
 
@@ -156,7 +97,6 @@ public class Revolver : MonoBehaviour
         EnablePickup(true);
     }
 
-
     public void SetupChambers()
     {
         bulletsFired = 0;
@@ -176,18 +116,24 @@ public class Revolver : MonoBehaviour
             chambers[i] = true; // Live bullet
         }
 
-        // Shuffle chambers to randomize bullet positions
-        System.Random rng = new System.Random();
-        chambers = chambers.OrderBy(x => rng.Next()).ToArray();
+        // Shuffle chambers using a custom shuffle method
+        ShuffleChambers();
+
         currentChamber = 0;
 
         Debug.Log($"Revolver setup complete: {liveBullets} live bullets, {blanks} blank bullets.");
     }
 
-    public void Reload()
+    private void ShuffleChambers()
     {
-        audioSource.PlayOneShot(reloadSound);
-        SetupChambers();
+        System.Random rng = new System.Random();
+        for (int i = chambers.Length - 1; i > 0; i--)
+        {
+            int swapIndex = rng.Next(i + 1);
+            bool temp = chambers[i];
+            chambers[i] = chambers[swapIndex];
+            chambers[swapIndex] = temp;
+        }
     }
 
     public void EnablePickup(bool enable)
@@ -206,6 +152,13 @@ public class Revolver : MonoBehaviour
 
     private void OnPickup(SelectEnterEventArgs args)
     {
+        PlayPickupSound();
+        Debug.Log("Player picked up the revolver.");
+    }
+
+    public void PlayPickupSound()
+    {
         audioSource.PlayOneShot(pickupSound);
+        Debug.Log("Played pickup sound.");
     }
 }

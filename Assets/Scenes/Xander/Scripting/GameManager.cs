@@ -1,17 +1,19 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     public Revolver revolver;
     public Transform revolverSpawnPoint; // Spawn location for the revolver
-    public Transform aiHandTarget; // Where the revolver should be placed when AI holds it
-    public Transform aiHeadTarget; // Where the revolver should be aimed if AI shoots itself
+    public TextMeshProUGUI playerHealthText;
+    public TextMeshProUGUI aiHealthText;
 
-    public HeartbeatMonitor playerMonitor;
-    public HeartbeatMonitor aiMonitor;
+    public AIController aiController;
 
     private bool isPlayerTurn = true;
+    private int playerHealth = 100;
+    private int aiHealth = 100;
 
     void Start()
     {
@@ -21,13 +23,8 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         Debug.Log("Game started, player's turn!");
-        StartNewRound();
-    }
-
-    public void StartNewRound()
-    {
-        Debug.Log("Starting new round.");
         revolver.SetupChambers();
+        UpdateHealthUI();
         StartTurn();
     }
 
@@ -37,92 +34,72 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Player's turn!");
             revolver.EnablePickup(true); // Allow player to pick up the revolver
+            revolver.canShoot = true;
         }
         else
         {
             Debug.Log("AI's turn!");
             revolver.EnablePickup(false); // Prevent player from picking up the revolver
-            StartCoroutine(AIUseRevolver());
+            revolver.canShoot = false;
+
+            // Start AI's turn using AIController
+            if (aiController != null)
+            {
+                aiController.StartAITurn();
+            }
         }
     }
 
-    public void EndTurn()
+    public void EndTurn(bool playerGetsAnotherTurn = false)
     {
-        isPlayerTurn = !isPlayerTurn;
+        if (!playerGetsAnotherTurn)
+        {
+            isPlayerTurn = !isPlayerTurn;
+        }
+
+        if (playerHealth <= 0)
+        {
+            Debug.Log("Player has lost!");
+            return; // End game if player has lost
+        }
+
+        if (aiHealth <= 0)
+        {
+            Debug.Log("AI has lost!");
+            return; // End game if AI has lost
+        }
+
         StartTurn();
     }
 
-    private IEnumerator AIUseRevolver()
+    public void ModifyHealth(bool isPlayer, int amount)
     {
-        Debug.Log("AI is starting its turn...");
-
-        // Wait for AI to "decide" what to do
-        yield return new WaitForSeconds(1f);
-
-        // Move revolver to AI's hand position
-        if (aiHandTarget != null)
+        if (isPlayer)
         {
-            Debug.Log("AI picks up the revolver.");
-            revolver.transform.position = aiHandTarget.position;
-            revolver.transform.rotation = aiHandTarget.rotation;
+            playerHealth += amount;
+            playerHealth = Mathf.Clamp(playerHealth, 0, 100);
+            Debug.Log($"Player's health: {playerHealth}");
         }
         else
         {
-            Debug.LogError("AI hand target not set!");
-            yield break; // Exit if no target for AI hand
+            aiHealth += amount;
+            aiHealth = Mathf.Clamp(aiHealth, 0, 100);
+            Debug.Log($"AI's health: {aiHealth}");
         }
 
-        // Wait before deciding who to shoot
-        yield return new WaitForSeconds(2f);
-
-        bool aiShootSelf = Random.value > 0.5f;
-
-        if (aiShootSelf)
-        {
-            Debug.Log("AI decided to shoot itself.");
-            if (aiHeadTarget != null)
-            {
-                revolver.transform.rotation = Quaternion.LookRotation(aiHeadTarget.position - revolver.transform.position);
-            }
-        }
-        else
-        {
-            Debug.Log("AI decided to shoot the player.");
-            revolver.transform.rotation = Quaternion.LookRotation(playerMonitor.transform.position - revolver.transform.position);
-        }
-
-        // Wait before firing
-        yield return new WaitForSeconds(1f);
-
-        revolver.canShoot = true; // Allow AI to shoot
-        Debug.Log("AI fires the revolver...");
-        revolver.FireAction(aiShootSelf); // AI fires
-
-        // Disable shooting after firing
-        revolver.canShoot = false;
-
-        // Wait before placing revolver back
-        yield return new WaitForSeconds(1f);
-
-        // Place revolver back on the table
-        PlaceRevolverBackOnTable();
-
-        // End AI turn
-        EndTurn();
+        UpdateHealthUI();
     }
 
-    private void PlaceRevolverBackOnTable()
+    private void UpdateHealthUI()
     {
-        if (revolverSpawnPoint != null)
+        if (playerHealthText != null)
         {
-            revolver.transform.position = revolverSpawnPoint.position;
-            revolver.transform.rotation = revolverSpawnPoint.rotation;
-            Debug.Log("Revolver placed back on the table.");
-            revolver.EnablePickup(false); // Prevent picking up until next round
+            playerHealthText.text = $"{playerHealth}";
         }
-        else
+
+        if (aiHealthText != null)
         {
-            Debug.LogError("Revolver spawn point not set!");
+            aiHealthText.text = $"{aiHealth}";
         }
     }
 }
