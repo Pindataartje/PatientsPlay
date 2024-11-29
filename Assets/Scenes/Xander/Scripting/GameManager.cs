@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 using TMPro;
 
 public class GameManager : MonoBehaviour
@@ -22,9 +21,63 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
+        if (revolver == null)
+        {
+            Debug.LogError("Revolver is not assigned!");
+            return;
+        }
+
         Debug.Log("Game started, player's turn!");
         revolver.SetupChambers();
         UpdateHealthUI();
+        isPlayerTurn = true;
+        StartTurn();
+    }
+
+    public void ProcessShot(bool targetIsAI, bool isLiveShot)
+    {
+        if (targetIsAI)
+        {
+            ModifyHealth(false, isLiveShot ? -20 : 0); // AI takes damage
+            Debug.Log($"AI was shot. Result: {(isLiveShot ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
+        }
+        else
+        {
+            ModifyHealth(true, isLiveShot ? -20 : 0); // Player takes damage
+            Debug.Log($"Player was shot. Result: {(isLiveShot ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
+        }
+
+        EndTurn();
+    }
+
+    public void EndTurn(bool playerGetsAnotherTurn = false)
+    {
+        if (revolver.bulletsFired >= revolver.totalBullets)
+        {
+            Debug.Log("All bullets fired! Starting a new round.");
+            revolver.SetupChambers();
+            isPlayerTurn = true; // Reset to player's turn
+            StartTurn();
+            return;
+        }
+
+        if (!playerGetsAnotherTurn)
+        {
+            isPlayerTurn = !isPlayerTurn; // Alternate turns
+        }
+
+        if (playerHealth <= 0)
+        {
+            Debug.Log("Player has lost!");
+            return; // Trigger game-over logic
+        }
+
+        if (aiHealth <= 0)
+        {
+            Debug.Log("AI has lost!");
+            return; // Trigger game-over logic
+        }
+
         StartTurn();
     }
 
@@ -33,43 +86,16 @@ public class GameManager : MonoBehaviour
         if (isPlayerTurn)
         {
             Debug.Log("Player's turn!");
-            revolver.EnablePickup(true); // Allow player to pick up the revolver
+            revolver.EnablePickup(true);
             revolver.canShoot = true;
         }
         else
         {
             Debug.Log("AI's turn!");
-            revolver.EnablePickup(false); // Prevent player from picking up the revolver
+            revolver.EnablePickup(false);
             revolver.canShoot = false;
-
-            // Start AI's turn using AIController
-            if (aiController != null)
-            {
-                aiController.StartAITurn();
-            }
+            aiController?.StartAITurn();
         }
-    }
-
-    public void EndTurn(bool playerGetsAnotherTurn = false)
-    {
-        if (!playerGetsAnotherTurn)
-        {
-            isPlayerTurn = !isPlayerTurn;
-        }
-
-        if (playerHealth <= 0)
-        {
-            Debug.Log("Player has lost!");
-            return; // End game if player has lost
-        }
-
-        if (aiHealth <= 0)
-        {
-            Debug.Log("AI has lost!");
-            return; // End game if AI has lost
-        }
-
-        StartTurn();
     }
 
     public void ModifyHealth(bool isPlayer, int amount)
@@ -94,12 +120,12 @@ public class GameManager : MonoBehaviour
     {
         if (playerHealthText != null)
         {
-            playerHealthText.text = $"{playerHealth}";
+            playerHealthText.text = playerHealth.ToString();
         }
 
         if (aiHealthText != null)
         {
-            aiHealthText.text = $"{aiHealth}";
+            aiHealthText.text = aiHealth.ToString();
         }
     }
 }
