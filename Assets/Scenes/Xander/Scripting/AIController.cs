@@ -64,19 +64,37 @@ public class AIController : MonoBehaviour
             Debug.Log($"AI is firing at {(shootSelf ? "itself" : "the player")}.");
             revolver.FireAction(shootSelf);
 
-            // Handle bullet consumption explicitly
-            Debug.Log($"AI shot a {(revolver.Chambers[revolver.CurrentChamber] ? "LIVE" : "BLANK")} bullet.");
-            revolver.ConsumeBullet(); // Explicitly consume the bullet after shooting
+            // Consume bullet immediately after firing
+            Debug.Log("AI is consuming the bullet after firing.");
+            revolver.ConsumeBullet();
 
-            // Check the result of the shot
-            bool isLive = revolver.Chambers[revolver.CurrentChamber];
-            Debug.Log($"AI shot result: {(isLive ? "LIVE shot" : "BLANK shot")}");
+            // Check if all bullets have been used
+            if (revolver.bulletsFired >= revolver.totalBullets)
+            {
+                Debug.Log("All bullets fired by AI. Placing revolver back and starting a new round.");
+                revolver.PlaceBackOnTable(); // Ensure revolver is reset to the table
+                yield return new WaitForSeconds(1.0f);
+                revolver.SetupChambers(); // Reset chambers for a new round
 
-            // Play the appropriate sound for the shot
-            PlaySound(isLive ? liveShotSound : blankShotSound);
+                // If it's still the AI's turn, start the turn again
+                if (!gameManager.IsPlayerTurn)
+                {
+                    Debug.Log("AI starting the new round.");
+                    StartAITurn();
+                }
+                else
+                {
+                    gameManager.EndTurn(); // Hand over the turn
+                }
+
+                yield break;
+            }
+
+            // Debug the result of the shot
+            Debug.Log($"AI shot result: {(revolver.Chambers[revolver.CurrentChamber] ? "LIVE shot" : "BLANK shot")}");
 
             // Apply damage if the AI shot the player with a live bullet
-            if (!shootSelf && isLive)
+            if (!shootSelf && revolver.Chambers[revolver.CurrentChamber])
             {
                 gameManager.ModifyHealth(true, -20);
                 Debug.Log("Player hit by AI with a LIVE bullet. 20 damage dealt.");
@@ -86,20 +104,30 @@ public class AIController : MonoBehaviour
             yield return new WaitForSeconds(1.5f);
 
             // Place revolver back on the table
+            Debug.Log("AI is placing the revolver back on the table.");
             revolver.PlaceBackOnTable();
 
             // If AI shoots itself with a blank, give another turn
-            if (shootSelf && !isLive)
+            if (shootSelf && !revolver.Chambers[revolver.CurrentChamber])
             {
                 Debug.Log("AI shot itself with a BLANK. AI gets another turn.");
+                yield return new WaitForSeconds(1.0f); // Small delay before restarting turn
                 StartAITurn();
             }
             else
             {
+                Debug.Log("AI turn ending normally.");
                 gameManager.EndTurn(); // End AI turn
             }
         }
+        else
+        {
+            Debug.LogError("AIController: Revolver or AIHandPoint is not assigned!");
+        }
     }
+
+
+
 
     private bool DecideTarget()
     {
@@ -135,3 +163,4 @@ public class AIController : MonoBehaviour
         }
     }
 }
+

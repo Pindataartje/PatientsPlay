@@ -5,8 +5,8 @@ public class Revolver : MonoBehaviour
 {
     [Header("Revolver Settings")]
     public int totalBullets = 6;
-    private bool[] chambers; // Internal chamber state
-    private int currentChamber; // Internal current chamber index
+    private bool[] chambers;
+    private int currentChamber;
     public int bulletsFired;
 
     [Header("Shooting Logic")]
@@ -25,9 +25,8 @@ public class Revolver : MonoBehaviour
     public GameManager gameManager;
     public Animator animator;
 
-    // Public properties for AI access
-    public bool[] Chambers => chambers; // Read-only access to chambers
-    public int CurrentChamber => currentChamber; // Read-only access to current chamber
+    public bool[] Chambers => chambers;
+    public int CurrentChamber => currentChamber;
 
     void Start()
     {
@@ -50,7 +49,9 @@ public class Revolver : MonoBehaviour
 
         if (bulletsFired >= totalBullets)
         {
-            Debug.LogWarning("All bullets fired! Start a new round.");
+            Debug.LogWarning("All bullets fired! Resetting for a new round.");
+            SetupChambers(); // Reset chambers for a new round
+            gameManager.EndTurn(); // Continue with the turn logic
             return;
         }
 
@@ -60,15 +61,12 @@ public class Revolver : MonoBehaviour
             return;
         }
 
-        // Play shoot animation
         animator?.SetTrigger("Shoot");
 
-        // Check current chamber for live or blank bullet
         bool isLive = chambers[currentChamber];
         audioSource?.PlayOneShot(isLive ? liveShotSound : blankShotSound);
         Debug.Log(isLive ? "Shot was LIVE." : "Shot was BLANK.");
 
-        // Use the correct trigger collider to determine the target
         string target = "None";
         Collider[] hitTargets = Physics.OverlapBox(
             shootingTrigger.bounds.center,
@@ -78,34 +76,35 @@ public class Revolver : MonoBehaviour
 
         foreach (var hit in hitTargets)
         {
-            Debug.Log($"Hit detected: {hit.name} with tag {hit.tag}");
-
-            if (aiShootSelf && hit.CompareTag("Enemy"))
-            {
-                target = "AI";
-            }
-            else if (!aiShootSelf && hit.CompareTag("Player"))
+            // Detect "Player" and "Enemy" tags
+            if (hit.CompareTag("Player"))
             {
                 target = "Player";
+                break;
             }
-            else if (!aiShootSelf && hit.CompareTag("Enemy"))
+            else if (hit.CompareTag("Enemy"))
             {
                 target = "Enemy";
+                break;
             }
         }
 
-        // Apply health damage and handle turn logic
+        // Process results based on target and bullet type
         if (gameManager != null)
         {
-            if (target == "AI")
-            {
-                gameManager.ModifyHealth(false, isLive ? -20 : 0);
-                Debug.Log($"AI shot itself. Result: {(isLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
-            }
-            else if (target == "Player")
+            if (target == "Player")
             {
                 gameManager.ModifyHealth(true, isLive ? -20 : 0);
-                Debug.Log($"AI shot the player. Result: {(isLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
+                Debug.Log($"Player shot themselves. Result: {(isLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
+
+                // Allow another turn if it's a blank
+                if (!isLive)
+                {
+                    Debug.Log("Blank shot! Player gets another turn.");
+                    gameManager.EndTurn(true); // Retain the turn for the player
+                    ConsumeBullet();
+                    return;
+                }
             }
             else if (target == "Enemy")
             {
@@ -114,56 +113,42 @@ public class Revolver : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("Shot missed! No valid target. Check collider alignment or target tags.");
+                Debug.Log("Shot missed! No valid target.");
             }
         }
 
-        // Mark the bullet as used
-        chambers[currentChamber] = false; // Remove the bullet (live or blank) from the chamber
+        ConsumeBullet(); // Properly consume the bullet
         Debug.Log($"Bullet removed from chamber {currentChamber}. Remaining chambers: {GetRemainingBullets()}");
 
-        currentChamber = (currentChamber + 1) % totalBullets; // Increment the chamber after every shot
-        bulletsFired++;
-
-        // Confirm bullet consumption during AI turns
-        Debug.Log($"Current chamber after shot: {currentChamber}. Bullets fired: {bulletsFired}");
-
-        // Place back and manage turn
-        if (!isLive && target == "Player")
+        if (bulletsFired >= totalBullets)
         {
-            Debug.Log("Player shot themselves with a BLANK. Player gets another turn.");
-            gameManager.EndTurn(true); // Player gets another turn
+            Debug.Log("All bullets used. Starting a new round.");
+            SetupChambers(); // Reset for a new round
         }
-        else
-        {
-            PlaceBackOnTable();
-            gameManager.EndTurn(); // End turn for live shot or other scenarios
-        }
+
+        gameManager.EndTurn(); // Hand over the turn
     }
+
 
     public void SetupChambers()
     {
-        bulletsFired = 0; // Reset fired count
+        bulletsFired = 0;
         chambers = new bool[totalBullets];
 
-        // Randomize the number of live and blank bullets
         int blanks = Random.Range(1, totalBullets);
         int liveBullets = totalBullets - blanks;
 
-        // Populate chambers
-        for (int i = 0; i < blanks; i++) chambers[i] = false; // Blank bullets
-        for (int i = blanks; i < totalBullets; i++) chambers[i] = true; // Live bullets
+        for (int i = 0; i < blanks; i++) chambers[i] = false;
+        for (int i = blanks; i < totalBullets; i++) chambers[i] = true;
 
-        // Shuffle the chambers
         ShuffleChambers();
 
-        currentChamber = 0; // Start at the first chamber
+        currentChamber = 0;
         Debug.Log($"Revolver setup: {liveBullets} live bullets, {blanks} blank bullets.");
     }
 
     private void ShuffleChambers()
     {
-        // Fisher-Yates shuffle
         System.Random rng = new System.Random();
         for (int i = chambers.Length - 1; i > 0; i--)
         {
@@ -218,7 +203,7 @@ public class Revolver : MonoBehaviour
         }
     }
 
-    private int GetRemainingBullets()
+    public int GetRemainingBullets()
     {
         int remaining = 0;
         foreach (bool chamber in chambers)
@@ -227,14 +212,22 @@ public class Revolver : MonoBehaviour
         }
         return remaining;
     }
+
     public void ConsumeBullet()
     {
-        // Mark the current chamber as empty and increment to the next chamber
-        chambers[currentChamber] = false; // Consume the bullet
-        Debug.Log($"Bullet in chamber {currentChamber} consumed.");
-        currentChamber = (currentChamber + 1) % totalBullets; // Move to the next chamber
+        if (chambers == null || chambers.Length == 0)
+        {
+            Debug.LogWarning("Chambers are not initialized.");
+            return;
+        }
+
+        Debug.Log($"Consuming bullet in chamber {currentChamber} (Live: {chambers[currentChamber]})");
+        chambers[currentChamber] = false; // Mark the bullet as used
+        currentChamber = (currentChamber + 1) % totalBullets; // Increment the chamber
         bulletsFired++;
+        Debug.Log($"Bullet consumed. Current chamber: {currentChamber}, Bullets fired: {bulletsFired}");
     }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground")) // Check if the object has the "Ground" tag
@@ -262,5 +255,4 @@ public class Revolver : MonoBehaviour
             Debug.Log("Revolver returned to the table.");
         }
     }
-
 }

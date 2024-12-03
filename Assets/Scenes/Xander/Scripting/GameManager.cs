@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
 
     public AIController aiController;
 
+    public bool IsPlayerTurn => isPlayerTurn;
     private bool isPlayerTurn = true;
     private int playerHealth = 100;
     private int aiHealth = 100;
