@@ -7085,8 +7085,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 9.119049, y: 10.755191, z: 10.741635}
-  m_Center: {x: -4.2826624, y: 4.8775954, z: -0.20007849}
+  m_Size: {x: 9.119049, y: 23.179525, z: 10.741635}
+  m_Center: {x: -4.2826624, y: -1.3345709, z: -0.20007849}
 --- !u!23 &2050295727
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7539,6 +7539,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8237528117099059877, guid: 27594c01c74899b4f818f4447b8215c2, type: 3}
       propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8621604768479482259, guid: 27594c01c74899b4f818f4447b8215c2, type: 3}
+      propertyPath: m_IsTrigger
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9146013144731790897, guid: 27594c01c74899b4f818f4447b8215c2, type: 3}
