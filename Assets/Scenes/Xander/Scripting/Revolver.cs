@@ -11,6 +11,10 @@ public class Revolver : MonoBehaviour
 
     [Header("Shooting Logic")]
     public Collider shootingTrigger;
+    bool isLive;
+    bool aimingOnTarget;
+    bool targetIsPlayer;
+    bool targetIsEnemy;
     public bool canShoot = false;
 
     [Header("Audio Clips")]
@@ -63,70 +67,88 @@ public class Revolver : MonoBehaviour
 
         animator?.SetTrigger("Shoot");
 
-        bool isLive = chambers[currentChamber];
+        isLive = chambers[currentChamber];
         audioSource?.PlayOneShot(isLive ? liveShotSound : blankShotSound);
         Debug.Log(isLive ? "Shot was LIVE." : "Shot was BLANK.");
 
-        string target = "None";
-        Collider[] hitTargets = Physics.OverlapBox(
-            shootingTrigger.bounds.center,
-            shootingTrigger.bounds.extents,
-            shootingTrigger.transform.rotation
-        );
-
-        foreach (var hit in hitTargets)
+        if (aimingOnTarget)
         {
-            // Detect "Player" and "Enemy" tags
-            if (hit.CompareTag("Player"))
+            if (targetIsPlayer)
             {
-                target = "Player";
-                break;
+                PlayerShot();
             }
-            else if (hit.CompareTag("Enemy"))
+            if (targetIsEnemy)
             {
-                target = "Enemy";
-                break;
+                EnemyShot();
             }
         }
-
-        // Process results based on target and bullet type
-        if (gameManager != null)
+        else
         {
-            if (target == "Player")
-            {
-                gameManager.ModifyHealth(true, isLive ? -20 : 0);
-                Debug.Log($"Player shot themselves. Result: {(isLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
-
-                // Allow another turn if it's a blank
-                if (!isLive)
-                {
-                    Debug.Log("Blank shot! Player gets another turn.");
-                    gameManager.EndTurn(true); // Retain the turn for the player
-                    ConsumeBullet();
-                    return;
-                }
-            }
-            else if (target == "Enemy")
-            {
-                gameManager.ModifyHealth(false, isLive ? -20 : 0);
-                Debug.Log($"Player shot the enemy. Result: {(isLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
-            }
-            else
-            {
-                Debug.Log("Shot missed! No valid target.");
-            }
+            gameManager.EndTurn();
+            Debug.Log("Shot missed! No valid target.");
         }
 
-        ConsumeBullet(); // Properly consume the bullet
-        Debug.Log($"Bullet removed from chamber {currentChamber}. Remaining chambers: {GetRemainingBullets()}");
+        //string target = "None";
+        //Collider[] hitTargets = Physics.OverlapBox(
+        //    shootingTrigger.bounds.center,
+        //    shootingTrigger.bounds.extents,
+        //    shootingTrigger.transform.rotation
+        //);
+
+        //foreach (var hit in hitTargets)
+        //{
+        //    // Detect "Player" and "Enemy" tags
+        //    if (hit.CompareTag("Player"))
+        //    {
+        //        target = "Player";
+        //        break;
+        //    }
+        //    else if (hit.CompareTag("Enemy"))
+        //    {
+        //        target = "Enemy";
+        //        break;
+        //    }
+        //    else
+        //    {
+        //        target = "None";
+        //        break;
+        //    }
+        //}
+
+        //// Process results based on target and bullet type
+        //if (gameManager != null)
+        //{
+        //    if (target == "Player")
+        //    {
+        //        gameManager.ModifyHealth(true, isNextLive ? -20 : 0);
+        //        Debug.Log($"Player shot themselves. Result: {(isNextLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
+
+        //        // Allow another turn if it's a blank
+        //        if (!isNextLive)
+        //        {
+        //            Debug.Log("Blank shot! Player gets another turn.");
+        //            gameManager.EndTurn(true); // Retain the turn for the player
+        //            ConsumeBullet();
+        //            return;
+        //        }
+        //    }
+        //    else if (target == "Enemy")
+        //    {
+        //        gameManager.ModifyHealth(false, isNextLive ? -20 : 0);
+        //        Debug.Log($"Player shot the enemy. Result: {(isNextLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
+        //    }
+        //    else
+        //    {
+        //        Debug.Log("Shot missed! No valid target.");
+        //        Debug.Log(target);
+        //    }
+        //}
 
         if (bulletsFired >= totalBullets)
         {
             Debug.Log("All bullets used. Starting a new round.");
             SetupChambers(); // Reset for a new round
         }
-
-        gameManager.EndTurn(); // Hand over the turn
     }
 
 
@@ -253,6 +275,91 @@ public class Revolver : MonoBehaviour
             }
 
             Debug.Log("Revolver returned to the table.");
+        }
+    }
+    public void OnTriggerEnter(Collider other)
+    {
+        aimingOnTarget = true;
+
+        if(other.tag == "Player")
+        {
+            targetIsPlayer = true;
+        }
+        if (other.tag == "Enemy")
+        {
+            targetIsEnemy = true;
+        }
+    }
+    public void OnTriggerStay(Collider other)
+    {
+        aimingOnTarget = true;
+
+        if (other.tag == "Player")
+        {
+            targetIsPlayer = true;
+        }
+        if (other.tag == "Enemy")
+        {
+            targetIsEnemy = true;
+        }
+    }
+    public void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "Player")
+        {
+            aimingOnTarget = false;
+            targetIsPlayer = false;
+        }
+        if (other.tag == "Enemy")
+        {
+            aimingOnTarget = false;
+            targetIsEnemy = false;
+        }
+    }
+    void PlayerShot()
+    {
+        ConsumeBullet();
+
+        if (gameManager.IsPlayerTurn)
+        {
+            if (!isLive)
+            {
+                gameManager.EndTurn(true);
+            }
+            else
+            {
+                gameManager.ModifyHealth(true, -20);
+                gameManager.EndTurn();
+            }
+        }
+        else
+        {
+            if (!isLive)
+            {
+                gameManager.EndTurn(true);
+            }
+            else
+            {
+                gameManager.ModifyHealth(true, -20);
+                gameManager.EndTurn(true);
+            }
+        }
+    }
+    void EnemyShot()
+    {
+        ConsumeBullet();
+
+        if (gameManager.IsPlayerTurn)
+        {
+            if (!isLive)
+            {
+                gameManager.EndTurn();
+            }
+            else
+            {
+                gameManager.ModifyHealth(false, -20);
+                gameManager.EndTurn();
+            }
         }
     }
 }
