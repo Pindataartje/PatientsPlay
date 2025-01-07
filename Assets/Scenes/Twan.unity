@@ -1639,6 +1639,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 15fa9c30b708cf44daebc7288b65c9df, type: 3}
+--- !u!1001 &6964967511090331073
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 10.638
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.073
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 18.933
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7398508080413376836, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7919324080280820734, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
+      propertyPath: m_Name
+      value: OfficeChair
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: aa3b505f74458fc4b9d6fbe7b9762bdf, type: 3}
 --- !u!1001 &8434733382660847654
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1784,3 +1841,4 @@ SceneRoots:
   - {fileID: 4268554633427706874}
   - {fileID: 1101956671432106984}
   - {fileID: 8434733382660847654}
+  - {fileID: 6964967511090331073}
