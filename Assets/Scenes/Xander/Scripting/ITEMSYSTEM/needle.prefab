@@ -127,7 +127,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e73847efdfb129640b0dee0be636a7d6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -8.383
+      value: -7.3930006
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e73847efdfb129640b0dee0be636a7d6, type: 3}
       propertyPath: m_LocalRotation.w
@@ -168,6 +168,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: e73847efdfb129640b0dee0be636a7d6, type: 3}
       propertyPath: m_Name
       value: needle
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e73847efdfb129640b0dee0be636a7d6, type: 3}
+      propertyPath: m_TagString
+      value: Item
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -363,7 +367,7 @@ MonoBehaviour:
   m_SnapToColliderVolume: 1
   m_ReinitializeDynamicAttachEverySingleGrab: 1
   m_AttachEaseInTime: 0.15
-  m_MovementType: 2
+  m_MovementType: 0
   m_VelocityDamping: 1
   m_VelocityScale: 1
   m_AngularVelocityDamping: 1

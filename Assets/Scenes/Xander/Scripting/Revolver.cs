@@ -54,8 +54,8 @@ public class Revolver : MonoBehaviour
         if (bulletsFired >= totalBullets)
         {
             Debug.LogWarning("All bullets fired! Resetting for a new round.");
-            SetupChambers(); // Reset chambers for a new round
-            gameManager.EndTurn(); // Continue with the turn logic
+            SetupChambers();
+            gameManager.EndTurn();
             return;
         }
 
@@ -91,10 +91,9 @@ public class Revolver : MonoBehaviour
         if (bulletsFired >= totalBullets)
         {
             Debug.Log("All bullets used. Starting a new round.");
-            SetupChambers(); // Reset for a new round
+            SetupChambers();
         }
     }
-
 
     public void SetupChambers()
     {
@@ -188,15 +187,15 @@ public class Revolver : MonoBehaviour
         }
 
         Debug.Log($"Consuming bullet in chamber {currentChamber} (Live: {chambers[currentChamber]})");
-        chambers[currentChamber] = false; // Mark the bullet as used
-        currentChamber = (currentChamber + 1) % totalBullets; // Increment the chamber
+        chambers[currentChamber] = false;
+        currentChamber = (currentChamber + 1) % totalBullets;
         bulletsFired++;
         Debug.Log($"Bullet consumed. Current chamber: {currentChamber}, Bullets fired: {bulletsFired}");
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ground")) // Check if the object has the "Ground" tag
+        if (collision.gameObject.CompareTag("Ground"))
         {
             Debug.Log("Revolver touched the ground. Returning to the table.");
             ReturnToTable();
@@ -214,91 +213,60 @@ public class Revolver : MonoBehaviour
             Rigidbody rb = GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.velocity = Vector3.zero; // Reset velocity to prevent sliding
-                rb.angularVelocity = Vector3.zero; // Reset angular velocity
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
             }
 
             Debug.Log("Revolver returned to the table.");
         }
     }
+
     public void OnTriggerEnter(Collider other)
     {
         aimingOnTarget = true;
 
-        if(other.tag == "Player")
-        {
-            targetIsPlayer = true;
-        }
-        if (other.tag == "Enemy")
-        {
-            targetIsEnemy = true;
-        }
+        if (other.tag == "Player") targetIsPlayer = true;
+        if (other.tag == "Enemy") targetIsEnemy = true;
     }
+
     public void OnTriggerStay(Collider other)
     {
         aimingOnTarget = true;
 
-        if (other.tag == "Player")
-        {
-            targetIsPlayer = true;
-        }
-        if (other.tag == "Enemy")
-        {
-            targetIsEnemy = true;
-        }
+        if (other.tag == "Player") targetIsPlayer = true;
+        if (other.tag == "Enemy") targetIsEnemy = true;
     }
+
     public void OnTriggerExit(Collider other)
     {
-        if (other.tag == "Player")
-        {
-            aimingOnTarget = false;
-            targetIsPlayer = false;
-        }
-        if (other.tag == "Enemy")
-        {
-            aimingOnTarget = false;
-            targetIsEnemy = false;
-        }
+        if (other.tag == "Player") targetIsPlayer = false;
+        if (other.tag == "Enemy") targetIsEnemy = false;
+
+        aimingOnTarget = false;
     }
+
     void PlayerShot()
     {
         ConsumeBullet();
-
         if (gameManager.IsPlayerTurn)
         {
             if (!isLive)
-            {
                 gameManager.EndTurn(true);
-            }
             else
             {
                 gameManager.ModifyHealth(true, -20);
                 gameManager.EndTurn();
-            }
-        }
-        else
-        {
-            if (!isLive)
-            {
-                gameManager.EndTurn(true);
-            }
-            else
-            {
-                gameManager.ModifyHealth(true, -20);
-                gameManager.EndTurn(true);
             }
         }
     }
+
     void EnemyShot()
     {
         ConsumeBullet();
-
         if (gameManager.IsPlayerTurn)
         {
             if (!isLive)
-            {
                 gameManager.EndTurn();
-            }
             else
             {
                 gameManager.ModifyHealth(false, -20);

@@ -14,6 +14,6 @@ public class PhoneItem : MonoBehaviour
         phoneText.text = result;
         Debug.Log(result);
 
-        Destroy(gameObject); // Remove the item after use
+        Destroy(gameObject);
     }
 }
