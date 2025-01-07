@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class Revolver : MonoBehaviour
@@ -87,62 +87,6 @@ public class Revolver : MonoBehaviour
             gameManager.EndTurn();
             Debug.Log("Shot missed! No valid target.");
         }
-
-        //string target = "None";
-        //Collider[] hitTargets = Physics.OverlapBox(
-        //    shootingTrigger.bounds.center,
-        //    shootingTrigger.bounds.extents,
-        //    shootingTrigger.transform.rotation
-        //);
-
-        //foreach (var hit in hitTargets)
-        //{
-        //    // Detect "Player" and "Enemy" tags
-        //    if (hit.CompareTag("Player"))
-        //    {
-        //        target = "Player";
-        //        break;
-        //    }
-        //    else if (hit.CompareTag("Enemy"))
-        //    {
-        //        target = "Enemy";
-        //        break;
-        //    }
-        //    else
-        //    {
-        //        target = "None";
-        //        break;
-        //    }
-        //}
-
-        //// Process results based on target and bullet type
-        //if (gameManager != null)
-        //{
-        //    if (target == "Player")
-        //    {
-        //        gameManager.ModifyHealth(true, isNextLive ? -20 : 0);
-        //        Debug.Log($"Player shot themselves. Result: {(isNextLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
-
-        //        // Allow another turn if it's a blank
-        //        if (!isNextLive)
-        //        {
-        //            Debug.Log("Blank shot! Player gets another turn.");
-        //            gameManager.EndTurn(true); // Retain the turn for the player
-        //            ConsumeBullet();
-        //            return;
-        //        }
-        //    }
-        //    else if (target == "Enemy")
-        //    {
-        //        gameManager.ModifyHealth(false, isNextLive ? -20 : 0);
-        //        Debug.Log($"Player shot the enemy. Result: {(isNextLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
-        //    }
-        //    else
-        //    {
-        //        Debug.Log("Shot missed! No valid target.");
-        //        Debug.Log(target);
-        //    }
-        //}
 
         if (bulletsFired >= totalBullets)
         {

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 
 public class GameManager : MonoBehaviour
@@ -128,5 +128,103 @@ public class GameManager : MonoBehaviour
         {
             aiHealthText.text = aiHealth.ToString();
         }
+    }
+
+    public GameObject empItemPrefab;
+    public GameObject healingItemPrefab;
+    public GameObject phoneItemPrefab;
+    public GameObject vacuumItemPrefab;
+
+    public InventorySlot[] playerInventorySlots;
+
+    // Check if it's the player's turn
+
+
+    // Give Player 3 Random Items Each Round
+    public void GiveRandomItems()
+    {
+        int itemsToGive = 3;
+        for (int i = 0; i < itemsToGive; i++)
+        {
+            AddRandomItemToSlot();
+        }
+    }
+
+    private void AddRandomItemToSlot()
+    {
+        foreach (var slot in playerInventorySlots)
+        {
+            if (!slot.IsOccupied)
+            {
+                GameObject itemPrefab = GetRandomItemPrefab();
+                slot.AddItem(itemPrefab);
+                return;
+            }
+        }
+
+        Debug.Log("Inventory full! Cannot add more items.");
+    }
+
+    private GameObject GetRandomItemPrefab()
+    {
+        int randomIndex = Random.Range(0, 4);
+        switch (randomIndex)
+        {
+            case 0: return empItemPrefab;
+            case 1: return healingItemPrefab;
+            case 2: return phoneItemPrefab;
+            case 3: return vacuumItemPrefab;
+            default: return null;
+        }
+    }
+
+    // Skip Enemy's Next Turn
+    public void SkipEnemyTurn()
+    {
+        Debug.Log("Enemy's next turn skipped!");
+        isPlayerTurn = true; // Force player's turn again
+    }
+
+    // Use Item in Slot
+    public void UseItemFromSlot(int slotIndex)
+    {
+        if (!IsPlayerTurn)
+        {
+            Debug.Log("Cannot use items on enemy's turn!");
+            return;
+        }
+
+        if (slotIndex < 0 || slotIndex >= playerInventorySlots.Length)
+        {
+            Debug.LogWarning("Invalid slot index!");
+            return;
+        }
+
+        var slot = playerInventorySlots[slotIndex];
+        if (!slot.IsOccupied)
+        {
+            Debug.LogWarning("Slot is empty!");
+            return;
+        }
+
+        var item = slot.transform.GetChild(0).gameObject;
+        switch (item.GetComponent<Item>().itemType)
+        {
+            case Item.ItemType.EMP:
+                item.GetComponent<EMPItem>().Use();
+                break;
+            case Item.ItemType.Healing:
+                item.GetComponent<HealingItem>().Use();
+                break;
+            case Item.ItemType.Phone:
+                item.GetComponent<PhoneItem>().Use();
+                break;
+            case Item.ItemType.Vacuum:
+                item.GetComponent<VacuumItem>().Use();
+                break;
+        }
+
+
+
     }
 }
