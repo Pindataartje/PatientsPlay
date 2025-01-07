@@ -8,6 +8,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 55daccc09a3b69647bbab145b54a3ab3
+  - enabled: 1
+    path: Assets/Scenes/GameScene/Security room.unity
+    guid: 65d209bbb33028146ac5bd8129630c33
+  - enabled: 1
+    path: Assets/Scenes/GameScene/Office.unity
+    guid: 7d0dbdd335223824d838f1128aaff05d
+  - enabled: 1
+    path: Assets/Scenes/GameScene/Morgue.unity
+    guid: b9512f0fe1f91f1488015b13860e50b7
+  - enabled: 1
+    path: Assets/Scenes/GameScene/DokterOffice.unity
+    guid: c753aacb21aa7bf448f38907d69161a8
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: bfa1182bd221b4ca89619141f66f1260, type: 2}
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: dc5a169419fa04987b057f65238cf3ba, type: 2}
