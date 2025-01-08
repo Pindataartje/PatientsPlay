@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     private int playerHealth = 100;
     private int aiHealth = 100;
 
+    private bool skipEnemyTurn = false; // Added for EMP Item
+
     void Start()
     {
         StartGame();
@@ -64,7 +66,16 @@ public class GameManager : MonoBehaviour
 
         if (!playerGetsAnotherTurn)
         {
-            isPlayerTurn = !isPlayerTurn; // Alternate turns
+            if (skipEnemyTurn && !isPlayerTurn)
+            {
+                Debug.Log("Skipping enemy turn due to EMP!");
+                skipEnemyTurn = false; // Reset flag after skipping
+                isPlayerTurn = true; // Force it back to player's turn
+            }
+            else
+            {
+                isPlayerTurn = !isPlayerTurn; // Alternate turns
+            }
         }
 
         if (playerHealth <= 0)
@@ -129,50 +140,11 @@ public class GameManager : MonoBehaviour
             aiHealthText.text = aiHealth.ToString();
         }
     }
-}
 
-using UnityEngine;
-using TMPro;
-
-public class HeartbeatMonitor : MonoBehaviour
-{
-    public TextMeshProUGUI heartbeatText;
-    private int heartbeat = 100;
-
-    void Start()
+    // EMP Effect
+    public void SkipEnemyTurn()
     {
-        UpdateHeartbeatDisplay();
-    }
-
-    public void ModifyHeartbeat(int amount)
-    {
-        heartbeat += amount;
-        heartbeat = Mathf.Clamp(heartbeat, 0, 100);
-        UpdateHeartbeatDisplay();
-
-        Debug.Log($"{gameObject.name}'s heartbeat: {heartbeat} BPM");
-
-        if (heartbeat <= 0)
-        {
-            LoseGame();
-        }
-    }
-
-    void UpdateHeartbeatDisplay()
-    {
-        if (heartbeatText != null)
-        {
-            heartbeatText.text = $"{heartbeat} BPM";
-        }
-        else
-        {
-            Debug.LogWarning($"{gameObject.name} does not have a heartbeatText assigned.");
-        }
-    }
-
-    void LoseGame()
-    {
-        Debug.Log($"{gameObject.name} lost the game!");
-        // Handle the end-game sequence here
+        Debug.Log("Enemy turn will be skipped next round.");
+        skipEnemyTurn = true;
     }
 }

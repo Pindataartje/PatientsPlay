@@ -54,8 +54,8 @@ public class Revolver : MonoBehaviour
         if (bulletsFired >= totalBullets)
         {
             Debug.LogWarning("All bullets fired! Resetting for a new round.");
-            SetupChambers();
-            gameManager.EndTurn();
+            SetupChambers(); // Reset chambers for a new round
+            gameManager.EndTurn(); // Continue with the turn logic
             return;
         }
 
@@ -88,12 +88,69 @@ public class Revolver : MonoBehaviour
             Debug.Log("Shot missed! No valid target.");
         }
 
+        //string target = "None";
+        //Collider[] hitTargets = Physics.OverlapBox(
+        //    shootingTrigger.bounds.center,
+        //    shootingTrigger.bounds.extents,
+        //    shootingTrigger.transform.rotation
+        //);
+
+        //foreach (var hit in hitTargets)
+        //{
+        //    // Detect "Player" and "Enemy" tags
+        //    if (hit.CompareTag("Player"))
+        //    {
+        //        target = "Player";
+        //        break;
+        //    }
+        //    else if (hit.CompareTag("Enemy"))
+        //    {
+        //        target = "Enemy";
+        //        break;
+        //    }
+        //    else
+        //    {
+        //        target = "None";
+        //        break;
+        //    }
+        //}
+
+        //// Process results based on target and bullet type
+        //if (gameManager != null)
+        //{
+        //    if (target == "Player")
+        //    {
+        //        gameManager.ModifyHealth(true, isNextLive ? -20 : 0);
+        //        Debug.Log($"Player shot themselves. Result: {(isNextLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
+
+        //        // Allow another turn if it's a blank
+        //        if (!isNextLive)
+        //        {
+        //            Debug.Log("Blank shot! Player gets another turn.");
+        //            gameManager.EndTurn(true); // Retain the turn for the player
+        //            ConsumeBullet();
+        //            return;
+        //        }
+        //    }
+        //    else if (target == "Enemy")
+        //    {
+        //        gameManager.ModifyHealth(false, isNextLive ? -20 : 0);
+        //        Debug.Log($"Player shot the enemy. Result: {(isNextLive ? "LIVE shot, 20 damage" : "BLANK shot, no damage")}");
+        //    }
+        //    else
+        //    {
+        //        Debug.Log("Shot missed! No valid target.");
+        //        Debug.Log(target);
+        //    }
+        //}
+
         if (bulletsFired >= totalBullets)
         {
             Debug.Log("All bullets used. Starting a new round.");
-            SetupChambers();
+            SetupChambers(); // Reset for a new round
         }
     }
+
 
     public void SetupChambers()
     {
@@ -187,15 +244,15 @@ public class Revolver : MonoBehaviour
         }
 
         Debug.Log($"Consuming bullet in chamber {currentChamber} (Live: {chambers[currentChamber]})");
-        chambers[currentChamber] = false;
-        currentChamber = (currentChamber + 1) % totalBullets;
+        chambers[currentChamber] = false; // Mark the bullet as used
+        currentChamber = (currentChamber + 1) % totalBullets; // Increment the chamber
         bulletsFired++;
         Debug.Log($"Bullet consumed. Current chamber: {currentChamber}, Bullets fired: {bulletsFired}");
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Ground")) // Check if the object has the "Ground" tag
         {
             Debug.Log("Revolver touched the ground. Returning to the table.");
             ReturnToTable();
@@ -213,60 +270,91 @@ public class Revolver : MonoBehaviour
             Rigidbody rb = GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
+                rb.velocity = Vector3.zero; // Reset velocity to prevent sliding
+                rb.angularVelocity = Vector3.zero; // Reset angular velocity
             }
 
             Debug.Log("Revolver returned to the table.");
         }
     }
-
     public void OnTriggerEnter(Collider other)
     {
         aimingOnTarget = true;
 
-        if (other.tag == "Player") targetIsPlayer = true;
-        if (other.tag == "Enemy") targetIsEnemy = true;
+        if (other.tag == "Player")
+        {
+            targetIsPlayer = true;
+        }
+        if (other.tag == "Enemy")
+        {
+            targetIsEnemy = true;
+        }
     }
-
     public void OnTriggerStay(Collider other)
     {
         aimingOnTarget = true;
 
-        if (other.tag == "Player") targetIsPlayer = true;
-        if (other.tag == "Enemy") targetIsEnemy = true;
+        if (other.tag == "Player")
+        {
+            targetIsPlayer = true;
+        }
+        if (other.tag == "Enemy")
+        {
+            targetIsEnemy = true;
+        }
     }
-
     public void OnTriggerExit(Collider other)
     {
-        if (other.tag == "Player") targetIsPlayer = false;
-        if (other.tag == "Enemy") targetIsEnemy = false;
-
-        aimingOnTarget = false;
+        if (other.tag == "Player")
+        {
+            aimingOnTarget = false;
+            targetIsPlayer = false;
+        }
+        if (other.tag == "Enemy")
+        {
+            aimingOnTarget = false;
+            targetIsEnemy = false;
+        }
     }
-
     void PlayerShot()
     {
         ConsumeBullet();
+
         if (gameManager.IsPlayerTurn)
         {
             if (!isLive)
+            {
                 gameManager.EndTurn(true);
+            }
             else
             {
                 gameManager.ModifyHealth(true, -20);
                 gameManager.EndTurn();
             }
         }
+        else
+        {
+            if (!isLive)
+            {
+                gameManager.EndTurn(true);
+            }
+            else
+            {
+                gameManager.ModifyHealth(true, -20);
+                gameManager.EndTurn(true);
+            }
+        }
     }
-
     void EnemyShot()
     {
         ConsumeBullet();
+
         if (gameManager.IsPlayerTurn)
         {
             if (!isLive)
+            {
                 gameManager.EndTurn();
+            }
             else
             {
                 gameManager.ModifyHealth(false, -20);
@@ -275,3 +363,5 @@ public class Revolver : MonoBehaviour
         }
     }
 }
+
+
