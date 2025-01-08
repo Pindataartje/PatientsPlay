@@ -101,7 +101,7 @@ public class GameManager : MonoBehaviour
         }
 
 
-
+         
         StartTurn();
     }
     public void ModifyHealth(bool isPlayer, int amount)

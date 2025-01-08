@@ -33,7 +33,7 @@ public class AIController : MonoBehaviour
         }
     }
 
-
+     
     public IEnumerator AITurnSequence()
     {
         if (revolver != null && aiHandPoint != null)

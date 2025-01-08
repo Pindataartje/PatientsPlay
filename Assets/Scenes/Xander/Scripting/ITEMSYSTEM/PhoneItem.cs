@@ -17,3 +17,4 @@ public class PhoneItem : MonoBehaviour
         Destroy(gameObject);
     }
 }
+ 

@@ -21,7 +21,7 @@ public class EMPItem : MonoBehaviour
         if (empActivationSound != null)
         {
             AudioSource.PlayClipAtPoint(empActivationSound, transform.position);
-        }
+        } 
 
         // Start the activation sequence
         StartCoroutine(DetonateEMP());

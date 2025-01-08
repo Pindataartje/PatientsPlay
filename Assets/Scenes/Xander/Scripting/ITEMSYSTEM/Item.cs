@@ -13,3 +13,4 @@ public class Item : MonoBehaviour
     [Header("Item Settings")]
     public ItemType itemType; // Set the type in the inspector
 }
+ 

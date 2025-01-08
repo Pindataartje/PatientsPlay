@@ -39,3 +39,4 @@ public class VRButtonLoadScene : MonoBehaviour
         SceneManager.LoadScene(sceneIndex);
     }
 }
+ 

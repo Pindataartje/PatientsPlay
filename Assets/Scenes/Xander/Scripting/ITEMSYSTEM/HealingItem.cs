@@ -10,3 +10,4 @@ public class HealingItem : MonoBehaviour
         Destroy(gameObject);
     }
 }
+ 

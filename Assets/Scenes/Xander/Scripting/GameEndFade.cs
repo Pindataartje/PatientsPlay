@@ -48,3 +48,4 @@ public class GameEndFade : MonoBehaviour
         SceneManager.LoadScene(sceneToLoad);
     }
 }
+ 
