@@ -81,14 +81,26 @@ public class GameManager : MonoBehaviour
         if (playerHealth <= 0)
         {
             Debug.Log("Player has lost!");
+            GameEndFade fade = FindAnyObjectByType<GameEndFade>();
+            if (fade != null)
+            {
+                fade.StartFade();
+            }
             return; // Trigger game-over logic
         }
 
         if (aiHealth <= 0)
         {
             Debug.Log("AI has lost!");
+            GameEndFade fade = FindAnyObjectByType<GameEndFade>();
+            if (fade != null)
+            {
+                fade.StartFade();
+            }
             return; // Trigger game-over logic
         }
+
+
 
         StartTurn();
     }
