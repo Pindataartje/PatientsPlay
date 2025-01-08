@@ -6258,6 +6258,22 @@ PrefabInstance:
       propertyPath: vacuumFeedbackText
       value: 
       objectReference: {fileID: 2805879629783702557}
+    - target: {fileID: 6119281798516633503, guid: 266e49df36b03344fa7d4f8a61e96ff5, type: 3}
+      propertyPath: m_CustomReticle
+      value: 
+      objectReference: {fileID: 8509446253597121341}
+    - target: {fileID: 6119281798516633503, guid: 266e49df36b03344fa7d4f8a61e96ff5, type: 3}
+      propertyPath: m_Colliders.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6119281798516633503, guid: 266e49df36b03344fa7d4f8a61e96ff5, type: 3}
+      propertyPath: 'm_Colliders.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8509446253597121342}
+    - target: {fileID: 7641099274351352857, guid: 266e49df36b03344fa7d4f8a61e96ff5, type: 3}
+      propertyPath: reloadSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 2df03878f1a333c46a17412df82160c6, type: 3}
     - target: {fileID: 8745842273512831486, guid: 266e49df36b03344fa7d4f8a61e96ff5, type: 3}
       propertyPath: m_Name
       value: GameSetupPrefab
@@ -6267,6 +6283,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 266e49df36b03344fa7d4f8a61e96ff5, type: 3}
+--- !u!1 &8509446253597121341 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9103779923383030462, guid: 266e49df36b03344fa7d4f8a61e96ff5, type: 3}
+  m_PrefabInstance: {fileID: 8509446253597121340}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &8509446253597121342 stripped
+BoxCollider:
+  m_CorrespondingSourceObject: {fileID: 8197095324508583162, guid: 266e49df36b03344fa7d4f8a61e96ff5, type: 3}
+  m_PrefabInstance: {fileID: 8509446253597121340}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &8530581162512469831 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1815682927692903826, guid: 266e49df36b03344fa7d4f8a61e96ff5, type: 3}
