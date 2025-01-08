@@ -92,24 +92,6 @@ public class GameManager : MonoBehaviour
 
         StartTurn();
     }
-
-    private void StartTurn()
-    {
-        if (isPlayerTurn)
-        {
-            Debug.Log("Player's turn!");
-            revolver.EnablePickup(true);
-            revolver.canShoot = true;
-        }
-        else
-        {
-            Debug.Log("AI's turn!");
-            revolver.EnablePickup(false);
-            revolver.canShoot = false;
-            aiController?.StartAITurn();
-        }
-    }
-
     public void ModifyHealth(bool isPlayer, int amount)
     {
         if (isPlayer)
@@ -141,10 +123,37 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // EMP Effect
+    private bool skipAITurn = false;
+
     public void SkipEnemyTurn()
     {
-        Debug.Log("Enemy turn will be skipped next round.");
-        skipEnemyTurn = true;
+        skipAITurn = true;
+        Debug.Log("Enemy's next turn will be skipped!");
+    }
+
+    private void StartTurn()
+    {
+        if (isPlayerTurn)
+        {
+            Debug.Log("Player's turn!");
+            revolver.EnablePickup(true);
+            revolver.canShoot = true;
+        }
+        else
+        {
+            if (skipAITurn)
+            {
+                Debug.Log("Enemy turn skipped due to EMP effect!");
+                skipAITurn = false; // Reset after skipping
+                isPlayerTurn = true; // Give turn back to player
+                StartTurn();
+                return;
+            }
+
+            Debug.Log("AI's turn!");
+            revolver.EnablePickup(false);
+            revolver.canShoot = false;
+            aiController?.StartAITurn();
+        }
     }
 }

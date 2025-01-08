@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d2e690584f278447a2487d199ec1946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  empActivationSound: {fileID: 0}
+  empActivationSound: {fileID: 8300000, guid: 16fba6d30ed741d4a9fdd6e79ee2f3ac, type: 3}
   empExplosionSound: {fileID: 8300000, guid: 16fba6d30ed741d4a9fdd6e79ee2f3ac, type: 3}
   empEffect: {fileID: 0}
 --- !u!135 &8701904482553273470

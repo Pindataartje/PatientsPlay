@@ -46,7 +46,7 @@ public class EMPItem : MonoBehaviour
         GameManager gameManager = FindAnyObjectByType<GameManager>();
         if (gameManager != null)
         {
-            gameManager.SkipEnemyTurn();
+            gameManager.SkipEnemyTurn(); // Ensure player's turn isn't overridden.
         }
 
         // Play explosion sound if assigned
