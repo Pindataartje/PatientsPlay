@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3630337394292122139}
   - component: {fileID: 6460262514805135882}
   - component: {fileID: 8701904482553273470}
+  - component: {fileID: 5190040609094746766}
   m_Layer: 0
   m_Name: EMPScript
   m_TagString: EMP
@@ -45,6 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d2e690584f278447a2487d199ec1946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  empActivationSound: {fileID: 0}
+  empExplosionSound: {fileID: 8300000, guid: 16fba6d30ed741d4a9fdd6e79ee2f3ac, type: 3}
+  empEffect: {fileID: 0}
 --- !u!135 &8701904482553273470
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -66,6 +70,19 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.06
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5190040609094746766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6967381897762452645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38235597a867f42488e98d6cb84952de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemType: 0
 --- !u!1001 &4648240320716400192
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -155,9 +172,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5fd39a6bc5845e04eb8782b55f68f57a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7220612155042858357}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5fd39a6bc5845e04eb8782b55f68f57a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6183485838460971760}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5fd39a6bc5845e04eb8782b55f68f57a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7786968716828514531}
@@ -270,7 +284,19 @@ MonoBehaviour:
       m_Calls: []
   m_Activated:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6460262514805135882}
+        m_TargetAssemblyTypeName: EMPItem, Assembly-CSharp
+        m_MethodName: Use
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_Deactivated:
     m_PersistentCalls:
       m_Calls: []
@@ -354,19 +380,6 @@ MonoBehaviour:
   m_StartingSingleGrabTransformers: []
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
---- !u!114 &6183485838460971760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5494589596517784337}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38235597a867f42488e98d6cb84952de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemType: 0
 --- !u!65 &7786968716828514531
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -23080,6 +23080,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: emp
       objectReference: {fileID: 0}
+    - target: {fileID: 6460262514805135882, guid: a4518a97e530ab54ca1685c610a94897, type: 3}
+      propertyPath: empActivationSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 16fba6d30ed741d4a9fdd6e79ee2f3ac, type: 3}
     - target: {fileID: 7220612155042858357, guid: a4518a97e530ab54ca1685c610a94897, type: 3}
       propertyPath: m_CustomReticle
       value: 
