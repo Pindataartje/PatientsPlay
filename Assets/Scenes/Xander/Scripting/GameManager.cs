@@ -59,7 +59,17 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("All bullets fired! Starting a new round.");
             revolver.SetupChambers();
-            isPlayerTurn = true; // Reset to player's turn
+
+            // Reset to AI's turn if the player fired the last shot
+            if (isPlayerTurn)
+            {
+                isPlayerTurn = false; // Ensure AI starts the new round
+            }
+            else
+            {
+                isPlayerTurn = true; // Ensure player starts the new round if AI fired last
+            }
+
             StartTurn();
             return;
         }
@@ -70,22 +80,25 @@ public class GameManager : MonoBehaviour
             {
                 Debug.Log("Skipping enemy turn due to EMP!");
                 skipEnemyTurn = false; // Reset flag after skipping
-                isPlayerTurn = true; // Force it back to player's turn
+                isPlayerTurn = true; // Force it back to the player's turn
             }
             else
             {
-                isPlayerTurn = !isPlayerTurn; // Alternate turns
+                // Properly toggle turns
+                isPlayerTurn = !isPlayerTurn;
+                Debug.Log($"Turn switched. isPlayerTurn: {isPlayerTurn}");
             }
+        }
+        else
+        {
+            Debug.Log("Player gets another turn due to blank or EMP.");
         }
 
         if (playerHealth <= 0)
         {
             Debug.Log("Player has lost!");
             GameEndFade fade = FindAnyObjectByType<GameEndFade>();
-            if (fade != null)
-            {
-                fade.StartFade();
-            }
+            fade?.StartFade();
             return; // Trigger game-over logic
         }
 
@@ -93,17 +106,14 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("AI has lost!");
             GameEndFade fade = FindAnyObjectByType<GameEndFade>();
-            if (fade != null)
-            {
-                fade.StartFade();
-            }
+            fade?.StartFade();
             return; // Trigger game-over logic
         }
 
-
-         
         StartTurn();
     }
+
+
     public void ModifyHealth(bool isPlayer, int amount)
     {
         if (isPlayer)

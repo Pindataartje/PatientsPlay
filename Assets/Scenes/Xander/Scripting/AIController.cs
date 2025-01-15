@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿
+using System.Collections;
 using UnityEngine;
 
 public class AIController : MonoBehaviour
@@ -33,7 +34,7 @@ public class AIController : MonoBehaviour
         }
     }
 
-     
+
     public IEnumerator AITurnSequence()
     {
         if (revolver != null && aiHandPoint != null)
@@ -51,7 +52,7 @@ public class AIController : MonoBehaviour
                 rb.constraints = RigidbodyConstraints.FreezeAll;
             }
 
-            PlaySound(pickupSound); // Play pickup sound
+            PlaySound(pickupSound);
             yield return new WaitForSeconds(1.0f);
 
             bool shootSelf = DecideTarget();
@@ -67,9 +68,14 @@ public class AIController : MonoBehaviour
             Debug.Log($"AI is firing at {(shootSelf ? "itself" : "the player")}.");
             revolver.FireAction(shootSelf);
 
-            // Play sound effect based on live or blank shot
             bool isLiveShot = revolver.Chambers[revolver.CurrentChamber];
             PlaySound(isLiveShot ? liveShotSound : blankShotSound);
+
+            if (shootSelf && isLiveShot)
+            {
+                gameManager.ModifyHealth(false, -20);
+                Debug.Log("AI shot itself with a LIVE bullet. 20 damage dealt.");
+            }
 
             Debug.Log($"AI shot result: {(isLiveShot ? "LIVE shot" : "BLANK shot")}.");
 
@@ -123,6 +129,7 @@ public class AIController : MonoBehaviour
             Debug.LogError("AIController: Revolver or AIHandPoint is not assigned!");
         }
     }
+
 
 
     private bool DecideTarget()
