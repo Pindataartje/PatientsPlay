@@ -11,8 +11,13 @@ public class PhoneItem : MonoBehaviour
         Revolver revolver = FindAnyObjectByType<Revolver>();
 
         string result = revolver.Chambers[revolver.CurrentChamber] ? "LIVE BULLET" : "BLANK BULLET";
-        phoneText.text = result;
         Debug.Log(result);
+
+        // Use TextManager to show and clear the text
+        if (TextManager.Instance != null)
+        {
+            TextManager.Instance.ShowTemporaryText(phoneText, result, 4f);
+        }
 
         Destroy(gameObject);
     }

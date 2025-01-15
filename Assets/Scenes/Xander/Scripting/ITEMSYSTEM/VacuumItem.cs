@@ -4,7 +4,7 @@ using TMPro;
 public class VacuumItem : MonoBehaviour
 {
     [Header("Vacuum Settings")]
-    public TextMeshProUGUI vacuumFeedbackText; // Optional UI Text feedback for bullet type
+    public TextMeshProUGUI vacuumFeedbackText;
 
     public void Use()
     {
@@ -13,18 +13,17 @@ public class VacuumItem : MonoBehaviour
         Revolver revolver = FindAnyObjectByType<Revolver>();
         if (revolver != null)
         {
-            // Check the current chamber
             bool isLive = revolver.Chambers[revolver.CurrentChamber];
             string bulletType = isLive ? "LIVE bullet" : "BLANK bullet";
 
             Debug.Log($"Vacuum Gun skipped a {bulletType}!");
 
-            if (vacuumFeedbackText != null)
+            // Use TextManager to show and clear the text
+            if (TextManager.Instance != null)
             {
-                vacuumFeedbackText.text = $"Vacuum skipped a {bulletType}!";
+                TextManager.Instance.ShowTemporaryText(vacuumFeedbackText, $"Vacuum skipped a {bulletType}!", 4f);
             }
 
-            // Skip the current bullet
             revolver.ConsumeBullet();
         }
         else
@@ -32,7 +31,6 @@ public class VacuumItem : MonoBehaviour
             Debug.LogWarning("No revolver found! Vacuum action failed.");
         }
 
-        // Destroy the item after use
         Destroy(gameObject);
     }
 }
