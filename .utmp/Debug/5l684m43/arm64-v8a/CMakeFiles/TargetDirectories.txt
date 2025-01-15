@@ -1,0 +1,5 @@
+C:/PatientsPlay/.utmp/Debug/5l684m43/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/PatientsPlay/.utmp/Debug/5l684m43/arm64-v8a/CMakeFiles/rebuild_cache.dir
+C:/PatientsPlay/.utmp/Debug/5l684m43/arm64-v8a/GameActivity/CMakeFiles/game.dir
+C:/PatientsPlay/.utmp/Debug/5l684m43/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
+C:/PatientsPlay/.utmp/Debug/5l684m43/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir

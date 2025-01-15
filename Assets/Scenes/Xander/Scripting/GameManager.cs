@@ -127,10 +127,24 @@ public class GameManager : MonoBehaviour
             aiHealth += amount;
             aiHealth = Mathf.Clamp(aiHealth, 0, 100);
             Debug.Log($"AI's health: {aiHealth}");
+
+            // Trigger the "Hit" animation whenever AI takes damage
+            if (amount < 0)
+            {
+                aiController?.animator?.SetTrigger("Hit");
+            }
+
+            // Trigger "Death" animation if AI's health reaches zero
+            if (aiHealth <= 0)
+            {
+                Debug.Log("AI has lost!");
+                aiController?.animator?.SetTrigger("Death");
+            }
         }
 
         UpdateHealthUI();
     }
+
 
     private void UpdateHealthUI()
     {

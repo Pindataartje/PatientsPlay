@@ -1,5 +1,4 @@
-﻿
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class AIController : MonoBehaviour
@@ -13,6 +12,9 @@ public class AIController : MonoBehaviour
     public AudioClip pickupSound;
     public AudioClip blankShotSound;
     public AudioClip liveShotSound;
+
+    [Header("AI Animation")]
+    public Animator animator; // Animator for the AI
 
     private GameManager gameManager;
 
@@ -34,7 +36,6 @@ public class AIController : MonoBehaviour
         }
     }
 
-
     public IEnumerator AITurnSequence()
     {
         if (revolver != null && aiHandPoint != null)
@@ -52,6 +53,8 @@ public class AIController : MonoBehaviour
                 rb.constraints = RigidbodyConstraints.FreezeAll;
             }
 
+            // Play grab animation
+            animator?.SetTrigger("Grab");
             PlaySound(pickupSound);
             yield return new WaitForSeconds(1.0f);
 
@@ -75,6 +78,14 @@ public class AIController : MonoBehaviour
             {
                 gameManager.ModifyHealth(false, -20);
                 Debug.Log("AI shot itself with a LIVE bullet. 20 damage dealt.");
+
+                // Play hit animation
+                animator?.SetTrigger("Hit");
+            }
+            else if (!shootSelf && isLiveShot)
+            {
+                gameManager.ModifyHealth(true, -20);
+                Debug.Log("Player hit by AI with a LIVE bullet. 20 damage dealt.");
             }
 
             Debug.Log($"AI shot result: {(isLiveShot ? "LIVE shot" : "BLANK shot")}.");
@@ -85,7 +96,11 @@ public class AIController : MonoBehaviour
             {
                 Debug.Log("All bullets fired by AI. Placing revolver back and starting a new round.");
                 revolver.PlaceBackOnTable();
+
+                // Play return animation
+                animator?.SetTrigger("Return");
                 yield return new WaitForSeconds(1.0f);
+
                 revolver.SetupChambers();
 
                 if (!gameManager.IsPlayerTurn)
@@ -101,16 +116,13 @@ public class AIController : MonoBehaviour
                 yield break;
             }
 
-            if (!shootSelf && isLiveShot)
-            {
-                gameManager.ModifyHealth(true, -20);
-                Debug.Log("Player hit by AI with a LIVE bullet. 20 damage dealt.");
-            }
-
             yield return new WaitForSeconds(1.5f);
 
             Debug.Log("AI is placing the revolver back on the table.");
             revolver.PlaceBackOnTable();
+
+            // Play return animation
+            animator?.SetTrigger("Return");
 
             if (shootSelf && !isLiveShot)
             {
@@ -129,8 +141,6 @@ public class AIController : MonoBehaviour
             Debug.LogError("AIController: Revolver or AIHandPoint is not assigned!");
         }
     }
-
-
 
     private bool DecideTarget()
     {
