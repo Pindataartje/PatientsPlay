@@ -12,8 +12,8 @@ public class GameManager : MonoBehaviour
 
     public bool IsPlayerTurn => isPlayerTurn;
     private bool isPlayerTurn = true;
-    private int playerHealth = 100;
-    private int aiHealth = 100;
+    public int playerHealth = 100;
+    public int aiHealth = 100;
 
     private bool skipEnemyTurn = false; // Added for EMP Item
 
@@ -22,7 +22,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI liveBulletText; // Text to show live bullets count
     public TextMeshProUGUI roundText; // Text to show the current round number
     private int currentRound = 1; // Tracks the round number
-
+    [Header("Usable Items")]
+    public GameObject[] usableItems; // Array to hold item GameObjects
 
     void Start()
     {
@@ -193,13 +194,14 @@ public class GameManager : MonoBehaviour
             Debug.Log("Player's turn!");
             revolver.EnablePickup(true);
             revolver.canShoot = true;
+            SetItemActivation(true); // Activate items for the player
         }
         else
         {
             if (skipAITurn)
             {
                 Debug.Log("Enemy turn skipped due to EMP effect!");
-                skipAITurn = false; // Reset after skipping
+                skipAITurn = false; // Reset flag after skipping
                 isPlayerTurn = true; // Give turn back to player
                 StartTurn();
                 return;
@@ -208,9 +210,11 @@ public class GameManager : MonoBehaviour
             Debug.Log("AI's turn!");
             revolver.EnablePickup(false);
             revolver.canShoot = false;
+            SetItemActivation(false); // Deactivate items for the player
             aiController?.StartAITurn();
         }
     }
+
     public void UpdateRoundAndUI()
     {
         // Update round text
@@ -243,6 +247,16 @@ public class GameManager : MonoBehaviour
         {
             int liveBullets = revolver.GetRemainingBullets();
             liveBulletText.text = $"Live: {liveBullets}/{revolver.totalBullets}";
+        }
+    }
+    private void SetItemActivation(bool isActive)
+    {
+        foreach (var item in usableItems)
+        {
+            if (item != null)
+            {
+                item.SetActive(isActive); // Activate or deactivate the item
+            }
         }
     }
 
