@@ -4,58 +4,86 @@ using System.Collections;
 public class EMPItem : MonoBehaviour
 {
     [Header("EMP Settings")]
-    public AudioClip empActivationSound; // Optional activation sound
-    public AudioClip empExplosionSound;  // Optional explosion sound
-    public ParticleSystem empEffect;     // Optional particle effect
+    public AudioClip empActivationSound;
+    public AudioClip empExplosionSound;
+    public ParticleSystem empEffect;
 
-    private bool isActivated = false; // Prevent multiple activations
+    public Transform originalPosition; // Assign the original position in the Inspector
+    private Rigidbody rb;
+    private bool isActivated = false;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            ResetPositionAndVelocity();
+        }
+    }
+
+    private void ResetPositionAndVelocity()
+    {
+        if (originalPosition != null)
+        {
+            Debug.Log($"{gameObject.name} hit the ground. Resetting to original position...");
+            transform.position = originalPosition.position;
+            transform.rotation = originalPosition.rotation;
+
+            if (rb != null)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Original position for {gameObject.name} is not set!");
+        }
+    }
 
     public void Use()
     {
-        if (isActivated) return; // Prevent duplicate activations
+        if (isActivated) return;
 
-        isActivated = true; // Mark as activated
+        isActivated = true;
         Debug.Log("EMP Grenade activated! Detonation in 1 second...");
 
-        // Play activation sound if assigned
         if (empActivationSound != null)
         {
             AudioSource.PlayClipAtPoint(empActivationSound, transform.position);
-        } 
+        }
 
-        // Start the activation sequence
         StartCoroutine(DetonateEMP());
     }
 
     private IEnumerator DetonateEMP()
     {
-        // Optional particle effect after 0.5 seconds
         yield return new WaitForSeconds(0.5f);
         if (empEffect != null)
         {
-            empEffect.Play(); // Play the one-shot particle effect
+            empEffect.Play();
             Debug.Log("EMP particle effect triggered!");
         }
 
-        // Continue waiting for the full 1-second delay
         yield return new WaitForSeconds(0.5f);
 
         Debug.Log("EMP Grenade detonated! Enemy's next turn will be skipped.");
 
-        // Apply the SkipEnemyTurn function
         GameManager gameManager = FindAnyObjectByType<GameManager>();
         if (gameManager != null)
         {
-            gameManager.SkipEnemyTurn(); // Ensure player's turn isn't overridden.
+            gameManager.SkipEnemyTurn();
         }
 
-        // Play explosion sound if assigned
         if (empExplosionSound != null)
         {
             AudioSource.PlayClipAtPoint(empExplosionSound, transform.position);
         }
 
-        // Destroy the EMP grenade after use
         Destroy(gameObject);
     }
 }

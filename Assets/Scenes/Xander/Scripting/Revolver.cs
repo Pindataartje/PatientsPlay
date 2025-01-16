@@ -71,6 +71,16 @@ public class Revolver : MonoBehaviour
         audioSource?.PlayOneShot(isLive ? liveShotSound : blankShotSound);
         Debug.Log(isLive ? "Shot was LIVE." : "Shot was BLANK.");
 
+        // If not aiming at a valid target, consume the bullet and end the turn
+        if (!aimingOnTarget || (!targetIsPlayer && !targetIsEnemy))
+        {
+            Debug.Log("Shot missed! No valid target.");
+            ConsumeBullet(); // Consume the bullet even if it misses
+            gameManager.EndTurn();
+            return;
+        }
+
+        // Handle valid target scenarios
         if (aimingOnTarget)
         {
             if (targetIsPlayer)
@@ -81,11 +91,6 @@ public class Revolver : MonoBehaviour
             {
                 EnemyShot();
             }
-        }
-        else
-        {
-            Debug.Log("Shot missed! No valid target.");
-            gameManager.EndTurn();
         }
 
         if (bulletsFired >= totalBullets)
@@ -112,7 +117,21 @@ public class Revolver : MonoBehaviour
 
         currentChamber = 0;
         Debug.Log($"Revolver setup: {liveBullets} live bullets, {blanks} blank bullets.");
+
+        // Reactivate all chamber circles
+        if (gameManager != null && gameManager.chamberCircles != null)
+        {
+            for (int i = 0; i < gameManager.chamberCircles.Length; i++)
+            {
+                if (gameManager.chamberCircles[i] != null && !gameManager.chamberCircles[i].activeSelf)
+                {
+                    Debug.Log($"Reactivating circle {i} for new round.");
+                    gameManager.chamberCircles[i].SetActive(true);
+                }
+            }
+        }
     }
+
 
     private void ShuffleChambers()
     {
@@ -190,10 +209,34 @@ public class Revolver : MonoBehaviour
 
         Debug.Log($"Consuming bullet in chamber {currentChamber} (Live: {chambers[currentChamber]})");
         chambers[currentChamber] = false; // Mark the bullet as used
-        currentChamber = (currentChamber + 1) % totalBullets; // Increment the chamber
         bulletsFired++;
+
+        // Deactivate the corresponding UI circle
+        int circleIndex = bulletsFired - 1; // Find the correct circle index
+        if (gameManager.chamberCircles != null && circleIndex >= 0 && circleIndex < gameManager.chamberCircles.Length)
+        {
+            if (gameManager.chamberCircles[circleIndex].activeSelf) // Ensure it is active before deactivating
+            {
+                Debug.Log($"Deactivating circle {circleIndex} for shot fired.");
+                gameManager.chamberCircles[circleIndex].SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning($"Circle {circleIndex} is already inactive!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Invalid circle index: {circleIndex}");
+        }
+
+        currentChamber = (currentChamber + 1) % totalBullets; // Increment the chamber
         Debug.Log($"Bullet consumed. Current chamber: {currentChamber}, Bullets fired: {bulletsFired}");
+
+        // Update live bullet count in the UI
+        gameManager.UpdateLiveBulletText();
     }
+
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -264,6 +307,8 @@ public class Revolver : MonoBehaviour
     void PlayerShot()
     {
         ConsumeBullet();
+        gameManager.UpdateRoundAndUI();
+
 
         if (gameManager.IsPlayerTurn)
         {
@@ -293,6 +338,8 @@ public class Revolver : MonoBehaviour
     void EnemyShot()
     {
         ConsumeBullet();
+        gameManager.UpdateRoundAndUI();
+
 
         if (gameManager.IsPlayerTurn)
         {

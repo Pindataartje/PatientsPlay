@@ -17,6 +17,13 @@ public class GameManager : MonoBehaviour
 
     private bool skipEnemyTurn = false; // Added for EMP Item
 
+    [Header("UI Elements")]
+    public GameObject[] chamberCircles; // The 6 UI circles representing chambers
+    public TextMeshProUGUI liveBulletText; // Text to show live bullets count
+    public TextMeshProUGUI roundText; // Text to show the current round number
+    private int currentRound = 1; // Tracks the round number
+
+
     void Start()
     {
         StartGame();
@@ -32,6 +39,7 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("Game started, player's turn!");
         revolver.SetupChambers();
+        UpdateRoundAndUI();
         UpdateHealthUI();
         isPlayerTurn = true;
         StartTurn();
@@ -58,22 +66,29 @@ public class GameManager : MonoBehaviour
         if (revolver.bulletsFired >= revolver.totalBullets)
         {
             Debug.Log("All bullets fired! Starting a new round.");
-            revolver.SetupChambers();
 
-            // Reset to AI's turn if the player fired the last shot
-            if (isPlayerTurn)
+            // Increment the round counter
+            currentRound++;
+
+            // Reset revolver chambers and update UI
+            revolver.SetupChambers();
+            UpdateRoundAndUI();
+
+            // Handle turn assignment for the new round
+            if (playerGetsAnotherTurn && isPlayerTurn)
             {
-                isPlayerTurn = false; // Ensure AI starts the new round
+                isPlayerTurn = true; // Ensure the player gets the first turn of the new round
             }
             else
             {
-                isPlayerTurn = true; // Ensure player starts the new round if AI fired last
+                isPlayerTurn = !isPlayerTurn; // Alternate turns otherwise
             }
 
             StartTurn();
             return;
         }
 
+        // Handle normal turn switching
         if (!playerGetsAnotherTurn)
         {
             if (skipEnemyTurn && !isPlayerTurn)
@@ -94,6 +109,7 @@ public class GameManager : MonoBehaviour
             Debug.Log("Player gets another turn due to blank or EMP.");
         }
 
+        // Check for game-over conditions
         if (playerHealth <= 0)
         {
             Debug.Log("Player has lost!");
@@ -110,9 +126,12 @@ public class GameManager : MonoBehaviour
             return; // Trigger game-over logic
         }
 
+        // Update UI for live bullets (optional live bullet check after every turn)
+        UpdateLiveBulletText();
+
+        // Start the next turn
         StartTurn();
     }
-
 
     public void ModifyHealth(bool isPlayer, int amount)
     {
@@ -192,4 +211,40 @@ public class GameManager : MonoBehaviour
             aiController?.StartAITurn();
         }
     }
+    public void UpdateRoundAndUI()
+    {
+        // Update round text
+        if (roundText != null)
+        {
+            roundText.text = $"Round {currentRound}";
+        }
+
+        // Reactivate all chamber circles ONLY at the start of a new round
+        if (revolver.bulletsFired == 0)
+        {
+            for (int i = 0; i < chamberCircles.Length; i++)
+            {
+                if (chamberCircles[i] != null && !chamberCircles[i].activeSelf)
+                {
+                    Debug.Log($"Reactivating circle {i} for a new round.");
+                    chamberCircles[i].SetActive(true);
+                }
+            }
+        }
+
+        // Update the live bullet count
+        UpdateLiveBulletText();
+    }
+
+
+    public void UpdateLiveBulletText()
+    {
+        if (liveBulletText != null)
+        {
+            int liveBullets = revolver.GetRemainingBullets();
+            liveBulletText.text = $"Live: {liveBullets}/{revolver.totalBullets}";
+        }
+    }
+
+
 }
