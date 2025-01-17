@@ -31,3 +31,11 @@
 25	870	7587541294817747	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	8b2681f305feff9
 9	915	7587541295242491	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	67cd18fee9f35008
 915	1058	7587541296315319	D:/Patient-s-Play/Patient's Play/PatientsPlay/Library/PramData/AndroidApplicationController/Cache/com.unity.vrtemplate/gradle-project/unityLibrary/build/intermediates/cxx/Debug/6c1vf4x2/obj/arm64-v8a/libgame.so	dd75e82939263d69
+49	1709	7588113353069662	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	12c3244112f345a2
+41	1710	7588113353009193	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	7c592e4f0db08ea5
+63	1719	7588113353188524	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	e66a3a93417d73b8
+3	1737	7588113353385429	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	34551e68686543f2
+28	1737	7588113353405424	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	9744b777d3d3e8d1
+56	1785	7588113353850045	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	8b2681f305feff9
+17	1812	7588113354098260	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	67cd18fee9f35008
+1812	2157	7588113357059969	D:/Patient-s-Play/Patient's Play/PatientsPlay/Library/PramData/AndroidApplicationController/Cache/com.unity.vrtemplate/gradle-project/unityLibrary/build/intermediates/cxx/Debug/6c1vf4x2/obj/arm64-v8a/libgame.so	dd75e82939263d69
